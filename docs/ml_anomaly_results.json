@@ -1,0 +1,30 @@
+{
+  "dataset": {
+    "normal_samples": 50,
+    "abnormal_samples": 10,
+    "features": [
+      "weld_efficiency",
+      "tcp_dx",
+      "tcp_dy",
+      "tcp_dz",
+      "tcp_length_delta",
+      "fault_code_present"
+    ]
+  },
+  "isolation_forest": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+  },
+  "one_class_svm": {
+    "accuracy": 0.85,
+    "precision": 0.5454545454545454,
+    "recall": 0.6,
+    "f1": 0.5714285714285713
+  },
+  "rule_based_engine": {
+    "note": "Rule-based scoring achieved 100% accuracy on 4 scenario tests (100/65/40/5 score gradient)",
+    "f1": 1.0
+  }
+}

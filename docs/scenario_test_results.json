@@ -1,0 +1,29 @@
+{
+  "normal": {
+    "score": 100.0,
+    "warnings": []
+  },
+  "efficiency_drop": {
+    "score": 65.0,
+    "warnings": [
+      "焊接效率下降 0.017",
+      "检测到故障码: 焊机通信中断"
+    ]
+  },
+  "tcp_offset": {
+    "score": 40.0,
+    "warnings": [
+      "TCP 长度偏差 +1.23 mm",
+      "TCP 欧氏距离偏差 1.237 mm"
+    ]
+  },
+  "combined": {
+    "score": 5.0,
+    "warnings": [
+      "焊接效率下降 0.024",
+      "TCP 长度偏差 +0.63 mm",
+      "TCP 欧氏距离偏差 1.219 mm",
+      "检测到故障码: 焊机通信异常"
+    ]
+  }
+}

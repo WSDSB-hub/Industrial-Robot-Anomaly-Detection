@@ -1,0 +1,101 @@
+{
+  "fault_frequency": [
+    [
+      "Arc Loss",
+      12
+    ],
+    [
+      "Welder Comm Fault",
+      10
+    ],
+    [
+      "Invalid Command",
+      8
+    ],
+    [
+      "System Alarm",
+      8
+    ],
+    [
+      "Motor Overload",
+      5
+    ],
+    [
+      "Wire Adhesion",
+      4
+    ],
+    [
+      "Motor Current Stall",
+      4
+    ],
+    [
+      "Welder Comm Interrupt",
+      3
+    ],
+    [
+      "Soft Limit Error",
+      2
+    ],
+    [
+      "Coordinate Transform Err",
+      2
+    ],
+    [
+      "Safety Bracket",
+      2
+    ]
+  ],
+  "top_cooccurrence_pairs": [
+    [
+      5,
+      "Invalid Command",
+      "System Alarm"
+    ],
+    [
+      5,
+      "Arc Loss",
+      "Welder Comm Fault"
+    ],
+    [
+      4,
+      "Arc Loss",
+      "Wire Adhesion"
+    ],
+    [
+      3,
+      "Welder Comm Fault",
+      "Invalid Command"
+    ],
+    [
+      3,
+      "Motor Overload",
+      "Motor Current Stall"
+    ],
+    [
+      2,
+      "Welder Comm Interrupt",
+      "System Alarm"
+    ],
+    [
+      2,
+      "Soft Limit Error",
+      "Coordinate Transform Err"
+    ],
+    [
+      2,
+      "Arc Loss",
+      "Welder Comm Interrupt"
+    ],
+    [
+      2,
+      "Arc Loss",
+      "System Alarm"
+    ],
+    [
+      1,
+      "Welder Comm Interrupt",
+      "Safety Bracket"
+    ]
+  ],
+  "note": "These are simulated fault events based on field observation patterns. Real fault logs would replace this dataset."
+}
