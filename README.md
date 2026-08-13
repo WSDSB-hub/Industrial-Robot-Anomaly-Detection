@@ -417,7 +417,7 @@ Top maintenance priorities:
 
 ## Limitations and Honest Assessment
 
-This project uses simulated data for the ML comparison and fault association mining, because real fault logs and continuous state data were not available for export from the production system. The rule-based engine thresholds are derived from engineering judgment and robot specifications rather than statistical learning. These limitations are explicitly acknowledged throughout the project.
+This project uses simulated data and real data for the ML comparison and fault association mining, because real fault logs and continuous state data were not available for export from the production system. The rule-based engine thresholds are derived from engineering judgment and robot specifications rather than statistical learning. These limitations are explicitly acknowledged throughout the project.
 
 The J5 misclassification in the joint localization layer is reported honestly, with root-cause analysis and proposed solutions. This is an example of a real engineering finding — a method that works in most cases but fails in a specific, understandable way.
 
