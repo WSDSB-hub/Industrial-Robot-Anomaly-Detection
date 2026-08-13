@@ -408,6 +408,57 @@ To demonstrate that the health monitoring system can be deployed in a real-time 
 
 ### Architecture
 
+<img src="2.drawio.png"/>
+
+### Nodes
+
+| Node | Package | Topic | Function |
+|:---|:---|:---|:---|
+| `state_publisher` | `robot_health_monitor` | Publishes to `/robot_health/state` | Simulates robot state data (weld efficiency) at 1 Hz |
+| `anomaly_detector` | `robot_health_monitor` | Subscribes to `/robot_health/state`, publishes to `/robot_health/score` | Computes a health score from the state using a rule-based threshold |
+| `alert_manager` | `robot_health_monitor` | Subscribes to `/robot_health/score`, publishes to `/robot_health/alert` | Raises an alert when the score drops below a critical threshold |
+
+### Implementation
+
+The package `robot_health_monitor` was created in the same ROS2 Humble workspace as the earlier `vision_pkg` package. This demonstrates a progression from single-node validation (vision_pkg) to a complete multi-node application (robot_health_monitor).
+
+All three nodes use only `rclpy` and `std_msgs` — no third-party dependencies. The communication is entirely through ROS2 topics, ensuring full decoupling between nodes.
+
+### Launch File
+
+A `health_monitor.launch.py` file was created to start all three nodes with a single command:
+
+```bash
+ros2 launch robot_health_monitor health_monitor.launch.py
+This is the standard ROS2 practice for managing multi-node applications, and it demonstrates understanding of production-grade robot software deployment.
+
+Validation Results
+
+The system was validated in two ways:
+
+1.Manual multi-terminal test: Three terminals were opened, each running one node. All three nodes communicated correctly through the topics, and when a low-efficiency state was published, the detector lowered the health score and the alert manager raised an alarm.
+
+2.Single-command launch test: Using the launch file, all three nodes started simultaneously with one command, and the same topic communication behavior was observed in the consolidated logs.
+
+Both tests confirmed that the rule-based health scoring logic, originally developed as an offline Python script, can be deployed as a real-time ROS2 application without modification to the core logic.
+
+Key Outcome
+
+This module bridges the gap between offline analysis and real-time deployment. It demonstrates:
+
+1.Distributed system design: Three independent nodes with clear responsibility separation.
+
+2.Standard ROS2 practices: Custom package, entry points, launch file, colcon build.
+
+3.Real-time processing capability: From data publication to alert generation in under one second.
+
+4.Consistency with earlier work: The same health scoring rules from the offline engine were reused directly in the ROS2 nodes.
+
+
+Future Integration
+
+The state_publisher node currently simulates robot state data. In a production deployment, this node would be replaced with a real data ingestion layer that subscribes to the robot controller's Ethernet/IP or Profinet interface, or reads from a CSV export pipeline. The anomaly_detector and alert_manager nodes would remain unchanged, because they operate purely on the ROS2 message interface — not on the data source.
+
 
 
 ---
