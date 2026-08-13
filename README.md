@@ -428,7 +428,7 @@ All three nodes use only `rclpy` and `std_msgs` — no third-party dependencies.
 
 A `health_monitor.launch.py` file was created to start all three nodes with a single command:
 
-```bash
+bash
 ros2 launch robot_health_monitor health_monitor.launch.py
 This is the standard ROS2 practice for managing multi-node applications, and it demonstrates understanding of production-grade robot software deployment.
 
@@ -442,6 +442,11 @@ The system was validated in two ways:
 
 Both tests confirmed that the rule-based health scoring logic, originally developed as an offline Python script, can be deployed as a real-time ROS2 application without modification to the core logic.
 
+![ROS2 Launch Output](images/ros2_launch_output（1）.png)
+
+![ROS2 Launch Output](images/ros2_launch_output（2）.png)
+
+![ROS2 Topic List](images/ros2_topic_list.png)
 Key Outcome
 
 This module bridges the gap between offline analysis and real-time deployment. It demonstrates:
