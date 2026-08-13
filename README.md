@@ -142,66 +142,7 @@ Isolation Forest achieved perfect separation, expected because the anomalous sam
 
 An ablation study was conducted to verify that each component of the anomaly detection system contributes meaningfully to overall performance, rather than simply adding complexity without benefit.
 
-## Temporal Anomaly Detection with LSTM-Autoencoder
 
-### Motivation
-
-The previous layers of this system operate on discrete state snapshots and fault codes — data that can be collected from the robot controller without real-time data streaming. However, if continuous joint angle or TCP trajectory data becomes available in the future, the system should be able to learn normal motion patterns and detect temporal anomalies directly from time-series data.
-
-To prepare for this capability, I implemented an LSTM-Autoencoder-based temporal anomaly detector. The model is trained exclusively on normal trajectory data to learn a compressed representation of expected motion. When presented with anomalous trajectories, it produces high reconstruction errors, which serve as the anomaly signal.
-
-### Iteration 1: Naive Implementation
-
-The first version was a straightforward LSTM-Autoencoder without data normalization, trained for 50 epochs on raw joint angle data.
-
-**Results**: F1 = 0.433, Precision = 0.338, Recall = 0.600.
-
-The poor performance revealed two issues:
-1. **No normalization**: Joint angles ranged from approximately 10° to 22° across different axes, making the model's training unstable.
-2. **Model underfitting**: Training loss remained high (66.4 after 50 epochs), indicating the model had not fully learned the normal pattern.
-
-### Iteration 2: Attempted Improvement with Threshold Optimization
-
-The second version added StandardScaler normalization, increased the hidden dimension from 32 to 64, and extended training to 100 epochs. It also attempted to select an optimal threshold by maximizing F1 on a validation set.
-
-**Results**: F1 = 0.502, Precision = 0.336, Recall = 1.000.
-
-This exposed a critical methodological flaw: the validation set contained only normal samples. When there are no positive cases, maximizing F1 is meaningless, and the algorithm degenerated to selecting a threshold of zero — flagging everything as anomalous.
-
-### Iteration 3: Fixed Threshold and the Overfitting Discovery
-
-The third version fixed the threshold selection by using the 99th percentile of validation reconstruction errors — a standard industrial practice that does not require labeled anomalies.
-
-**Results**: F1 = 0.602, Precision = 0.430, Recall = 1.000.
-
-The F1 improved, but the result revealed a deeper problem:
-
-| Split | MSE |
-|:---|:---|
-| Training loss | 0.001477 |
-| Validation loss | 0.259420 |
-
-The validation loss was approximately **175 times larger** than the training loss. This is a clear signature of overfitting: the model had memorized the specific waveforms in the training set rather than learning the general pattern of normal motion. When presented with unseen normal data, the reconstruction error was large, leading to false positives.
-
-### What This Iterative Process Taught Me
-
-The v1 → v2 → v3 progression is more instructive than a single perfect result would have been. It demonstrates three distinct failure modes commonly encountered in deep learning for industrial applications:
-
-1. **Data preprocessing errors** (v1): Without normalization, models cannot learn effectively from features with different scales.
-2. **Evaluation methodology errors** (v2): Optimizing a metric on a dataset that does not contain the target class leads to degenerate solutions.
-3. **Model capacity versus data size mismatch** (v3): A 64-unit LSTM-Autoencoder trained on only 500 windows of synthetic data will overfit. In a real industrial deployment, the data volume would be orders of magnitude larger, and the overfitting problem would be significantly reduced.
-
-### Future Improvements
-
-If real trajectory data becomes available, three changes would address the issues identified:
-
-1. **Increase training data**: Real industrial robots generate thousands of motion cycles; training on 10,000+ windows instead of 500 would dramatically reduce overfitting.
-2. **Add regularization**: Dropout was already applied, but weight decay and gradient clipping could further constrain the model.
-3. **Reduce model capacity**: A smaller LSTM (16 or 32 hidden units) may generalize better on limited data.
-
-![Temporal Anomaly Detection v3](images/temporal_anomaly_detection_v3.png)
-
-The complete training and evaluation code for all three iterations is available in `src/temporal_anomaly_detection.py`, `src/temporal_anomaly_detection_v2.py`, and `src/temporal_anomaly_detection_v3.py`.
 
 ### Experimental Design
 
@@ -396,6 +337,78 @@ Top maintenance priorities:
 
 ---
 
+## Temporal Anomaly Detection with LSTM-Autoencoder
+
+### Motivation
+
+The previous layers of this system operate on discrete state snapshots and fault codes — data that can be collected from the robot controller without real-time data streaming. However, if continuous joint angle or TCP trajectory data becomes available in the future, the system should be able to learn normal motion patterns and detect temporal anomalies directly from time-series data.
+
+To prepare for this capability, I implemented an LSTM-Autoencoder-based temporal anomaly detector. The model is trained exclusively on normal trajectory data to learn a compressed representation of expected motion. When presented with anomalous trajectories, it produces high reconstruction errors, which serve as the anomaly signal.
+
+### Iteration 1: Naive Implementation
+
+The first version was a straightforward LSTM-Autoencoder without data normalization, trained for 50 epochs on raw joint angle data.
+
+**Results**: F1 = 0.433, Precision = 0.338, Recall = 0.600.
+
+The poor performance revealed two issues:
+1. **No normalization**: Joint angles ranged from approximately 10° to 22° across different axes, making the model's training unstable.
+2. **Model underfitting**: Training loss remained high (66.4 after 50 epochs), indicating the model had not fully learned the normal pattern.
+
+### Iteration 2: Attempted Improvement with Threshold Optimization
+
+The second version added StandardScaler normalization, increased the hidden dimension from 32 to 64, and extended training to 100 epochs. It also attempted to select an optimal threshold by maximizing F1 on a validation set.
+
+**Results**: F1 = 0.502, Precision = 0.336, Recall = 1.000.
+
+This exposed a critical methodological flaw: the validation set contained only normal samples. When there are no positive cases, maximizing F1 is meaningless, and the algorithm degenerated to selecting a threshold of zero — flagging everything as anomalous.
+
+### Iteration 3: Fixed Threshold and the Overfitting Discovery
+
+The third version fixed the threshold selection by using the 99th percentile of validation reconstruction errors — a standard industrial practice that does not require labeled anomalies.
+
+**Results**: F1 = 0.602, Precision = 0.430, Recall = 1.000.
+
+The F1 improved, but the result revealed a deeper problem:
+
+| Split | MSE |
+|:---|:---|
+| Training loss | 0.001477 |
+| Validation loss | 0.259420 |
+
+The validation loss was approximately **175 times larger** than the training loss. This is a clear signature of overfitting: the model had memorized the specific waveforms in the training set rather than learning the general pattern of normal motion. When presented with unseen normal data, the reconstruction error was large, leading to false positives.
+
+### What This Iterative Process Taught Me
+
+The v1 → v2 → v3 progression is more instructive than a single perfect result would have been. It demonstrates three distinct failure modes commonly encountered in deep learning for industrial applications:
+
+1. **Data preprocessing errors** (v1): Without normalization, models cannot learn effectively from features with different scales.
+2. **Evaluation methodology errors** (v2): Optimizing a metric on a dataset that does not contain the target class leads to degenerate solutions.
+3. **Model capacity versus data size mismatch** (v3): A 64-unit LSTM-Autoencoder trained on only 500 windows of synthetic data will overfit. In a real industrial deployment, the data volume would be orders of magnitude larger, and the overfitting problem would be significantly reduced.
+
+### Future Improvements
+
+If real trajectory data becomes available, three changes would address the issues identified:
+
+1. **Increase training data**: Real industrial robots generate thousands of motion cycles; training on 10,000+ windows instead of 500 would dramatically reduce overfitting.
+2. **Add regularization**: Dropout was already applied, but weight decay and gradient clipping could further constrain the model.
+3. **Reduce model capacity**: A smaller LSTM (16 or 32 hidden units) may generalize better on limited data.
+
+![Temporal Anomaly Detection v3](images/temporal_anomaly_detection_v3.png)
+
+The complete training and evaluation code for all three iterations is available in `src/temporal_anomaly_detection.py`, `src/temporal_anomaly_detection_v2.py`, and `src/temporal_anomaly_detection_v3.py`.
+
+## ROS2 Deployment for Real-Time Health Monitoring
+
+### Motivation
+
+The previous modules operate as offline Python scripts. They analyze data that has already been collected. In a real industrial deployment, however, health monitoring must operate in real time — subscribing to robot state data as it is generated, computing health scores continuously, and raising alerts the moment an anomaly is detected.
+
+To demonstrate that the health monitoring system can be deployed in a real-time distributed architecture, I implemented a complete ROS2 package with three independent nodes that communicate through standard ROS2 topics.
+
+### Architecture
+
+
 
 ---
 
@@ -411,6 +424,7 @@ Top maintenance priorities:
 8. **Multi-pose observability enhancement** — demonstrated that stacking Jacobians from multiple nominal poses resolves the weak-joint ambiguity that single-pose localization cannot handle.
 9. **Feature ablation study** — quantified the contribution of each feature group to anomaly detection performance, identifying TCP pose as the most critical signal and revealing the redundancy of the joint-anomaly marker under current data conditions.
 10. **Temporal anomaly detection** with LSTM-Autoencoder, including a three-iteration improvement process that revealed preprocessing errors, evaluation methodology flaws, and overfitting behavior in deep learning for time-series anomaly detection.
+11. **Real-time ROS2 deployment** — implemented a three-node ROS2 package (`robot_health_monitor`) that replicates the offline health scoring logic in a real-time distributed architecture, validated through both multi-terminal and launch-file testing.
 
 
 ---
