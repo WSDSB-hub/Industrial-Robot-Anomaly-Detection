@@ -69,3 +69,210 @@ The controller recorded the following fault events, categorized by subsystem:
 
 The system processes discrete data through four layers:
 
+<img src="1.drawio.png"/>
+
+
+---
+
+## Layer 1: Rule-Based Health Scoring
+
+The health score starts at 100 and deductions are applied when features exceed predefined thresholds.
+
+### Features
+
+**Weld Efficiency** = Welding Time / Program Execution Time
+
+This feature measures the proportion of active program time actually spent welding. A sudden drop without a corresponding production change indicates excessive non-welding time — waiting for communication responses, recovering from faults, or executing unplanned retries.
+
+**TCP Position Deviation** = Euclidean distance from baseline, plus per-axis deviations.
+
+The robot's specified repeatability is ±0.02 mm. A deviation beyond 0.2 mm is unambiguously abnormal.
+
+### Scoring Rules
+
+| Feature | Threshold | Score Deduction |
+|:---|:---|:---|
+| Weld Efficiency Drop | > 0.01 (absolute) | -20 |
+| TCP Length Deviation | > 0.2 mm | -30 |
+| TCP Euclidean Deviation | > 0.3 mm | -30 |
+| Critical Fault Code Present | (see fault list) | -15 per code |
+
+### Validation Results
+
+Four scenarios were designed to validate the engine:
+
+| Scenario | Health Score | Detected Anomalies |
+|:---|:---|:---|
+| Normal State | 100.0 / 100 | None |
+| Welding Efficiency Drop | 65.0 / 100 | Efficiency drop, communication fault |
+| TCP Position Offset | 40.0 / 100 | Length and Euclidean deviation |
+| Combined Anomaly | 5.0 / 100 | All anomaly types detected |
+
+The clear score gradient (100 → 65 → 40 → 5) demonstrates effective distinction of severity levels.
+
+![Health Score Comparison](images/health_score_comparison.png)
+
+---
+
+## Layer 2: Machine Learning Anomaly Detection
+
+A preliminary experiment compared two classic unsupervised anomaly detection algorithms against the rule-based baseline.
+
+### Experimental Setup
+
+- **Dataset**: 60 simulated samples (50 normal, 10 abnormal), each with 6 features: weld efficiency, TCP X/Y/Z deviation, TCP length deviation, and fault-code presence indicator.
+- **Preprocessing**: StandardScaler normalization.
+- **Algorithms**: Isolation Forest (contamination=0.167) and One-Class SVM (nu=0.167, RBF kernel).
+
+### Results
+
+| Method | Accuracy | Precision | Recall | F1 |
+|:---|:---|:---|:---|:---|
+| Rule-Based Engine | 1.000 (4/4 scenarios) | — | — | — |
+| Isolation Forest | **1.000** | **1.000** | **1.000** | **1.000** |
+| One-Class SVM | 0.850 | 0.545 | 0.600 | 0.571 |
+
+### Discussion
+
+Isolation Forest achieved perfect separation, expected because the anomalous samples were constructed with clear multi-feature deviations. One-Class SVM performed significantly worse due to the small sample size (60) and sensitivity of the nu parameter. This result reinforces the importance of validating multiple algorithms rather than assuming "one model fits all."
+
+![ML Comparison](images/ml_anomaly_detection_comparison.png)
+
+---
+
+## Layer 3: Joint-Level Anomaly Localization
+
+This is the most technically advanced layer. It attempts to answer not just "is the robot abnormal?" but "which joint is causing the problem?"
+
+### D-H Kinematic Model
+
+The FANUC M-20iD/25 was modeled using standard D-H parameters based on public specifications:
+
+| Joint | a (mm) | α (deg) | d (mm) | θ offset (deg) |
+|:---|:---|:---|:---|:---|
+| J1 | 150 | -90 | 670 | 0 |
+| J2 | 780 | 0 | 0 | -90 |
+| J3 | 200 | -90 | 0 | 0 |
+| J4 | 0 | 90 | 735 | 0 |
+| J5 | 0 | -90 | 0 | 0 |
+| J6 | 0 | 0 | 100 | 0 |
+
+Forward kinematics was validated by confirming that single-axis rotations produce physically correct TCP position changes.
+
+### Jacobian-Based Localization
+
+The numerical Jacobian was computed to map TCP position deviations back to joint-space errors. The pseudoinverse of the Jacobian was used to estimate joint contributions.
+
+### Results
+
+| Scenario | Injected Joint | Detected Joint | Contribution |
+|:---|:---|:---|:---|
+| J3 Anomaly (+0.3°) | J3 | **J3** | 86.4% |
+| J2 Anomaly (+0.25°) | J2 | **J2** | 93.5% |
+| J5 Anomaly (+0.5°) | J5 | **J3** | 63.7% |
+
+![Joint Anomaly Localization](images/joint_anomaly_localization.png)
+
+### Observability Limitation: The J5 Problem
+
+The J5 anomaly was consistently misclassified as J3. This is not a numerical bug — it is a fundamental observability limitation in the kinematic structure.
+
+The root cause is joint sensitivity. In the nominal pose, J3 has a much longer moment arm (approximately 780 mm) than J5 (approximately 100 mm). A given TCP deviation requires only a tiny J3 rotation but a much larger J5 rotation. The pseudoinverse method preferentially assigns errors to the more sensitive joint.
+
+Damped Least Squares (DLS) with a small damping factor produced nearly identical results, confirming that the issue is not numerical instability but insufficient observability: **TCP position deviation alone cannot reliably distinguish between weak-joint anomalies when strong joints are present.**
+
+### Engineering Conclusion
+
+Reliable joint-level diagnosis requires one of:
+1. **Multi-pose observations** — collecting TCP deviations at multiple distinct robot configurations where different joints are dominant.
+2. **Direct joint encoder feedback** — if J1–J6 angle data can be exported, joint anomalies become directly observable without any inverse kinematics.
+3. **Joint weighting** — incorporating prior knowledge of joint stiffness and noise characteristics into the Jacobian.
+
+This finding demonstrates the importance of understanding the physical and mathematical limitations of a method, rather than simply applying it.
+
+![DLS Joint Localization](images/dls_joint_localization.png)
+
+---
+
+## Layer 4: Fault Association Mining and Maintenance Prioritization
+
+### Fault Association Rules
+
+Association rule mining was performed on fault event patterns observed in the field. The strongest rules:
+
+| Rule | Confidence |
+|:---|:---|
+| Soft Limit Error → Coordinate Transform Err | 1.00 |
+| Coordinate Transform Err → Soft Limit Error | 1.00 |
+| Wire Adhesion → Arc Loss | 1.00 |
+| Welder Comm Interrupt → Arc Loss | 0.67 |
+| Welder Comm Interrupt → System Alarm | 0.67 |
+| Motor Current Stall → Motor Overload | 0.75 |
+| Invalid Command → System Alarm | 0.62 |
+
+These rules reveal meaningful fault propagation patterns. For example, a communication interrupt often precedes an arc loss — a logical sequence, because if the robot cannot communicate with the welding machine, the welding process cannot be sustained.
+
+![Fault Co-occurrence Matrix](images/fault_cooccurrence_matrix.png)
+
+### Maintenance Priority Ranking
+
+A severity-weighted priority score was computed for each fault code:
+
+**Priority Score = Severity Weight × Fault Frequency**
+
+| Severity Level | Weight | Meaning |
+|:---|:---|:---|
+| L1 Safety | 3 | Potential equipment damage or personnel injury |
+| L2 Functional | 2 | Weld quality degradation or production interruption |
+| L3 Advisory | 1 | Attention needed but no immediate stop |
+
+Top maintenance priorities:
+
+| Rank | Fault Code | Level | Priority Score |
+|:---|:---|:---|:---|
+| 1 | Arc Loss | L2 | 44 |
+| 2 | Soft Limit Error | L2 | 36 |
+| 3 | Coordinate Transform Err | L2 | 28 |
+| 4 | Welder Power Off | L1 | 24 |
+| 5 | Singularity Error | L2 | 22 |
+
+![Maintenance Priority Ranking](images/maintenance_priority_ranking.png)
+
+---
+
+
+---
+
+## Key Technical Contributions
+
+1. **Interpretable rule-based engine** for industrial health scoring, with each deduction traceable to a physical meaning.
+2. **Comparative evaluation** of two unsupervised ML algorithms against the rule-based baseline.
+3. **Complete D-H kinematic model** of the FANUC M-20iD/25, validated against physical expectations.
+4. **Joint-level anomaly localization** using Jacobian pseudoinverse, with honest analysis of its observability limitations.
+5. **Fault association mining** using co-occurrence analysis and confidence-based rules.
+6. **Severity-weighted maintenance prioritization** that translates fault data into actionable engineering recommendations.
+
+---
+
+## Limitations and Honest Assessment
+
+This project uses simulated data for the ML comparison and fault association mining, because real fault logs and continuous state data were not available for export from the production system. The rule-based engine thresholds are derived from engineering judgment and robot specifications rather than statistical learning. These limitations are explicitly acknowledged throughout the project.
+
+The J5 misclassification in the joint localization layer is reported honestly, with root-cause analysis and proposed solutions. This is an example of a real engineering finding — a method that works in most cases but fails in a specific, understandable way.
+
+---
+
+## Future Work
+
+- **Real-time data integration**: Extend the system to read state data at regular intervals via Ethernet/IP or Profinet.
+- **Direct joint encoder data**: If J1–J6 angle data can be exported, implement direct joint anomaly detection without inverse kinematics.
+- **Multi-pose observability**: Collect TCP deviations at multiple distinct robot poses to overcome the J5 observability limitation.
+- **Sequence-based fault prediction**: Analyze fault-code sequences to predict impending failures before they occur.
+
+---
+
+## License
+
+MIT License
+
+
