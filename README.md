@@ -192,6 +192,19 @@ This finding demonstrates the importance of understanding the physical and mathe
 
 ![DLS Joint Localization](images/dls_joint_localization.png)
 
+### Observability Enhancement via Multi-Pose Jacobian Stacking
+
+The J5 misclassification problem identified in the single-pose test was successfully resolved through multi-pose joint localization. By stacking the Jacobian matrices from five distinct nominal poses and solving the combined pseudoinverse, the J5 anomaly was correctly identified with a contribution ratio of 99.9%.
+
+| Method | Detected Joint | J5 Contribution | Result |
+|:---|:---|:---|:---|
+| Single-Pose Pseudoinverse | J3 (wrong) | 11.2% | Failed |
+| Multi-Pose Joint Localization (5 poses) | J5 (correct) | 99.9% | Success |
+
+The principle behind this improvement is observability enhancement: in a single pose, the J5 axis has a much smaller moment arm than J3, making it difficult for the pseudoinverse to correctly attribute TCP deviation to J5. Across multiple poses, however, the contribution pattern of each joint changes. In some poses, J5 contributes more strongly. The stacked Jacobian leverages this diversity to recover the weak joint's anomaly.
+
+![Multi-Pose Observability Comparison](images/multi_pose_observability_comparison.png)
+
 ---
 
 ## Real Data Validation: What Happened When I Tested the Model on Actual Field Data
