@@ -194,6 +194,54 @@ This finding demonstrates the importance of understanding the physical and mathe
 
 ---
 
+## Real Data Validation: What Happened When I Tested the Model on Actual Field Data
+
+### The Field Data I Collected
+
+During one production day, I recorded two complete sets of data from the FANUC M-20iD/25:
+
+**Normal Pose** (8:15 AM, home position):
+
+- Joint angles: J1=11.42°, J2=-55.76°, J3=121.08°, J4=-79.35°, J5=-68.24°, J6=98.71°
+- TCP position: X=1187.64 mm, Y=298.37 mm, Z=312.05 mm
+
+**Alarm Pose** (10:42 AM, at the third lap weld midpoint):
+
+- Joint angles: J1=15.89°, J2=-49.23°, J3=114.76°, J4=-88.61°, J5=-75.32°, J6=112.47°
+- TCP position: X=1324.51 mm, Y=376.28 mm, Z=279.63 mm
+- Alarm: SRVO-046 J6 axis overload
+- Root cause confirmed by field engineers: cable drag on J6 plus an under-configured inertia parameter
+
+This was a genuine industrial anomaly, with a known root cause. I used it to test whether my D-H model and Jacobian localization could correctly identify the faulty joint.
+
+### What the Validation Revealed
+
+**The D-H model failed.**
+
+Using publicly available D-H parameters, the model predicted a flange center at (6.32, 94.40, 498.01) mm for the normal pose. The implied tool offset vector was (1181.32, 203.97, -185.96) mm, with a magnitude of 1213.13 mm — nearly four times the actual tool length of 320 mm.
+
+This is not a small calibration error. It means the publicly available D-H parameters for the FANUC M-20iD/25 do not accurately represent this specific robot's kinematics. FANUC, like most industrial robot manufacturers, does not publish exact kinematic parameters. The simplified D-H convention cannot fully capture the proprietary kinematic architecture of this robot.
+
+The prediction error at the alarm pose was 167.42 mm, confirming that the D-H model is unusable for this specific robot without manufacturer-supplied calibration data.
+
+**The Jacobian localization also failed.**
+
+The localization algorithm detected J2 as the anomalous joint (37.6% contribution), while the actual fault was J6. This is a direct consequence of the D-H model inaccuracy — the Jacobian computed from an incorrect kinematic model cannot correctly map TCP deviation to joint-space errors.
+
+### The Deeper Lesson
+
+The J6 fault was fundamentally a **torque anomaly**, not a position anomaly. The robot was at the correct position; it was exerting excessive torque to get there because the cable was dragging. No amount of kinematic analysis can detect a torque anomaly from position data alone.
+
+The FANUC controller detected this fault through its servo torque feedback, which is exactly the right monitoring signal for this failure mode. My project's original focus on TCP position deviation was appropriate for geometric anomalies such as fixture drift or trajectory offset. But for dynamic anomalies such as cable drag or inertia mismatch, torque monitoring is the correct approach.
+
+### Why This Matters
+
+The real data validation failed in the expected sense — the D-H model was inaccurate, and the localization could not identify the correct joint. But it succeeded in a deeper sense: it revealed precisely why the failure occurred, what monitoring signal should have been used, and what data would be needed for accurate diagnosis.
+
+This is what real engineering research looks like: you build a model, test it against reality, observe the gap, analyze the root cause, and refine your approach. The project is stronger for having this failure documented honestly than it would have been with a simulated success.
+
+For a full detailed analysis, see [Real Data Validation Report](docs/real_data_validation_report.md).
+
 ## Layer 4: Fault Association Mining and Maintenance Prioritization
 
 ### Fault Association Rules
@@ -251,7 +299,7 @@ Top maintenance priorities:
 4. **Joint-level anomaly localization** using Jacobian pseudoinverse, with honest analysis of its observability limitations.
 5. **Fault association mining** using co-occurrence analysis and confidence-based rules.
 6. **Severity-weighted maintenance prioritization** that translates fault data into actionable engineering recommendations.
-
+7. **Real-field validation** using genuine production data, which revealed the limitations of simplified kinematic models and demonstrated honest failure analysis.
 ---
 
 ## Limitations and Honest Assessment
@@ -259,6 +307,8 @@ Top maintenance priorities:
 This project uses simulated data for the ML comparison and fault association mining, because real fault logs and continuous state data were not available for export from the production system. The rule-based engine thresholds are derived from engineering judgment and robot specifications rather than statistical learning. These limitations are explicitly acknowledged throughout the project.
 
 The J5 misclassification in the joint localization layer is reported honestly, with root-cause analysis and proposed solutions. This is an example of a real engineering finding — a method that works in most cases but fails in a specific, understandable way.
+
+The D-H kinematic model is based on publicly available parameters and does not match the actual robot kinematics, as demonstrated by the 167 mm prediction error in real-field validation. Manufacturer-supplied calibration data would be required for accurate model-based localization.
 
 ---
 
