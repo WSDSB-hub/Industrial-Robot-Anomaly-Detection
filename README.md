@@ -410,6 +410,7 @@ Top maintenance priorities:
 7. **Real-field validation** using genuine production data, which revealed the limitations of simplified kinematic models and demonstrated honest failure analysis.
 8. **Multi-pose observability enhancement** — demonstrated that stacking Jacobians from multiple nominal poses resolves the weak-joint ambiguity that single-pose localization cannot handle.
 9. **Feature ablation study** — quantified the contribution of each feature group to anomaly detection performance, identifying TCP pose as the most critical signal and revealing the redundancy of the joint-anomaly marker under current data conditions.
+10. **Temporal anomaly detection** with LSTM-Autoencoder, including a three-iteration improvement process that revealed preprocessing errors, evaluation methodology flaws, and overfitting behavior in deep learning for time-series anomaly detection.
 
 
 ---
