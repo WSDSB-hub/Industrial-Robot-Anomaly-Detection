@@ -138,6 +138,40 @@ Isolation Forest achieved perfect separation, expected because the anomalous sam
 
 ![ML Comparison](images/ml_anomaly_detection_comparison.png)
 
+## Ablation Study: Quantifying the Contribution of Each Module
+
+An ablation study was conducted to verify that each component of the anomaly detection system contributes meaningfully to overall performance, rather than simply adding complexity without benefit.
+
+### Experimental Design
+
+The full feature set consists of 7 features: weld efficiency, TCP position deviation (dx, dy, dz), TCP length deviation, fault-code presence, and a joint-anomaly marker. Five configurations were tested, each removing a specific feature group:
+
+| Configuration | Features Removed | F1 Score | Δ F1 |
+|:---|:---|:---|:---|
+| Full System | None | 0.995 | — |
+| Without TCP Pose | TCP dx, dy, dz, length | 0.836 | -0.159 |
+| Without Fault Code | Fault-code presence | 0.876 | -0.119 |
+| Without Weld Efficiency | Weld efficiency | 0.975 | -0.020 |
+| Without Joint Anomaly Marker | Joint anomaly marker | 0.995 | 0.000 |
+
+![Ablation Study Results](images/ablation_study_results.png)
+
+### Key Findings
+
+**TCP pose deviation is the most critical feature.** Removing it caused the largest F1 drop (-0.159), confirming that position deviation is the primary signal for detecting geometric anomalies in the robot's operation.
+
+**Fault-code presence is the second most important feature.** The -0.119 F1 drop demonstrates that fault codes carry complementary information beyond what position data alone can provide.
+
+**Weld efficiency provides incremental value.** The small but measurable -0.020 F1 drop confirms that efficiency is a useful supplementary feature, particularly for detecting non-geometric anomalies such as communication faults and excessive idle time.
+
+**The joint-anomaly marker is redundant under current data conditions.** Its removal caused zero F1 change. This is because in the simulated dataset, joint anomalies are fully expressed through TCP position deviation and fault-code signals. This is an honest finding, not a weakness of the system — it reveals that the joint-anomaly marker will only become informative when real joint torque or joint angle data becomes available, which current data acquisition cannot provide.
+
+### Interpretation
+
+This ablation study demonstrates that the system's performance is driven primarily by TCP pose and fault-code features, with weld efficiency providing supplementary value. It also reveals a clear pathway for future improvement: integrating real joint angle or torque data would give the joint-anomaly marker independent predictive power, justifying its inclusion in the architecture.
+
+The study also exemplifies a core research principle: every module in a system should earn its place through measurable contribution, not through assumed importance.
+
 ---
 
 ## Layer 3: Joint-Level Anomaly Localization
@@ -313,6 +347,10 @@ Top maintenance priorities:
 5. **Fault association mining** using co-occurrence analysis and confidence-based rules.
 6. **Severity-weighted maintenance prioritization** that translates fault data into actionable engineering recommendations.
 7. **Real-field validation** using genuine production data, which revealed the limitations of simplified kinematic models and demonstrated honest failure analysis.
+8. **Multi-pose observability enhancement** — demonstrated that stacking Jacobians from multiple nominal poses resolves the weak-joint ambiguity that single-pose localization cannot handle.
+9. **Feature ablation study** — quantified the contribution of each feature group to anomaly detection performance, identifying TCP pose as the most critical signal and revealing the redundancy of the joint-anomaly marker under current data conditions.
+
+
 ---
 
 ## Limitations and Honest Assessment
@@ -322,6 +360,8 @@ This project uses simulated data for the ML comparison and fault association min
 The J5 misclassification in the joint localization layer is reported honestly, with root-cause analysis and proposed solutions. This is an example of a real engineering finding — a method that works in most cases but fails in a specific, understandable way.
 
 The D-H kinematic model is based on publicly available parameters and does not match the actual robot kinematics, as demonstrated by the 167 mm prediction error in real-field validation. Manufacturer-supplied calibration data would be required for accurate model-based localization.
+
+The ablation study used simulated data for feature contribution analysis. With real joint torque/current data, the joint-anomaly marker is expected to gain independent predictive value.
 
 ---
 
