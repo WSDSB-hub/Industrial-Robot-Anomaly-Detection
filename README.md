@@ -291,6 +291,80 @@ This is what real engineering research looks like: you build a model, test it ag
 
 For a full detailed analysis, see [Real Data Validation Report](docs/real_data_validation_report.md).
 
+## Real-Time Signal-Based Health Monitoring
+
+### Motivation
+
+The J6 overload event revealed a fundamental limitation of position-based anomaly detection: the robot was at the correct position while exerting abnormal force to get there. TCP pose deviation could not detect the anomaly, because the fault was in the torque domain, not the position domain.
+
+This layer addresses that gap by incorporating the real-time signals that most directly measure mechanical and electrical stress: joint load rate, motor current, and servo temperature.
+
+### Field Data Collection
+
+During one production day, 30 sets of complete operational data were collected from the FANUC M-20iD/25 teach pendant. Each set included six-axis joint angles, TCP pose, servo load rates, motor currents, winding temperatures, and cumulative runtime counters. The data covered the full spectrum of operational states: cold-start standby, straight-line welding, curve-following welding, rapid positioning, fixture switching, and one genuine anomaly event.
+
+The anomaly event occurred at 10:42 AM during the third lap weld. The robot triggered an SRVO-046 J6 axis overload alarm, caused by cable drag combined with an under-configured inertia parameter.
+
+### The Critical Comparison
+
+The table below contrasts the anomaly detection capability of position-based methods versus load-rate-based methods for the J6 overload event:
+
+| Detection Method | J6 Anomaly Detected? | Evidence |
+|:---|:---|:---|
+| TCP Pose Deviation + Jacobian | ❌ No | Misclassified as J2/J3 |
+| Joint Load Rate + Statistical Threshold | ✅ Yes | J6 load rate = 127.4% vs normal mean = 9.8% |
+
+### Statistical Analysis of J6 Load Rate
+
+The load rate data for J6 across all 30 samples was analyzed:
+
+| Statistic | Value |
+|:---|:---|
+| Normal mean | 9.80% |
+| Normal standard deviation | 5.35% |
+| 95th percentile threshold | 16.88% |
+| 3σ threshold | 25.87% |
+| **Anomaly value** | **127.4%** |
+| **Deviation from mean** | **+117.6%** |
+| **Anomaly ratio** | **13.0×** |
+
+The anomaly value exceeded the 3σ threshold by a factor of nearly 5, and exceeded the normal mean by a factor of 13. This is not a marginal deviation — it is an unambiguous statistical outlier.
+
+### Multi-Axis Validation
+
+The same analysis was applied to all six joints. The results confirm the specificity of the detection:
+
+| Joint | Normal Mean | 3σ Threshold | Anomaly Value | Detected? |
+|:---|:---|:---|:---|:---|
+| J1 | 19.55% | 51.26% | 30.7% | Normal |
+| J2 | 26.99% | 71.61% | 41.9% | Normal |
+| J3 | 16.64% | 41.90% | 25.1% | Normal |
+| J4 | 13.20% | 36.29% | 22.3% | Normal |
+| J5 | 16.81% | 47.20% | 27.8% | Normal |
+| **J6** | **9.80%** | **25.87%** | **127.4%** | **Anomaly** |
+
+Only J6 crossed its threshold — exactly matching the field diagnosis of J6 axis overload.
+
+### Why This Matters
+
+This finding closes a critical gap in the project. The earlier real-data validation had shown that position-based localization failed to identify the J6 fault, because the fault was in the torque domain. Now, the load-rate-based detection successfully identifies the same fault with complete clarity.
+
+The physical interpretation is straightforward: when the cable dragged on J6, the motor had to push much harder to achieve the same motion. The position remained correct, but the effort was abnormal. The load rate signal captured that excess effort directly.
+
+This is precisely why industrial robots monitor joint torque and current internally. The FANUC controller's own SRVO-series alarms are based on these signals, not on position deviation. This module demonstrates that an external health monitoring system should do the same.
+
+### Integration with the Existing System
+
+The load-rate-based detection naturally extends the rule-based scoring engine. A new rule can be added:
+
+**If any joint load rate exceeds its 3σ baseline, the health score is reduced and the affected joint is flagged for immediate inspection.**
+
+This rule operates on real signals that are already available on the teach pendant, requires no additional hardware, and detects the exact failure mode that position-based methods missed.
+
+![Signal Health Analysis](images/signal_health_analysis.png)
+
+The complete analysis script is available in `src/signal_health_analysis.py`, and the numerical results are stored in `docs/signal_health_results.json`.
+
 ## Layer 4: Fault Association Mining and Maintenance Prioritization
 
 ### Fault Association Rules
@@ -482,7 +556,7 @@ The state_publisher node currently simulates robot state data. In a production d
 9. **Feature ablation study** — quantified the contribution of each feature group to anomaly detection performance, identifying TCP pose as the most critical signal and revealing the redundancy of the joint-anomaly marker under current data conditions.
 10. **Temporal anomaly detection** with LSTM-Autoencoder, including a three-iteration improvement process that revealed preprocessing errors, evaluation methodology flaws, and overfitting behavior in deep learning for time-series anomaly detection.
 11. **Real-time ROS2 deployment** — implemented a three-node ROS2 package (`robot_health_monitor`) that replicates the offline health scoring logic in a real-time distributed architecture, validated through both multi-terminal and launch-file testing.
-
+12. **Real signal-based health monitoring** — demonstrated that joint load rate signals detect torque anomalies (J6 overload, 13× normal mean) that position-based methods completely miss.
 
 ---
 
