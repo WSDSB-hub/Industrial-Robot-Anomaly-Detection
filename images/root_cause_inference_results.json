@@ -1,0 +1,37 @@
+{
+  "input_signals": {
+    "load_rate": 127.4,
+    "current": 2.31,
+    "temp": 71.8,
+    "tcp_error": 0.5
+  },
+  "feature_scores": {
+    "load_rate_high": 1.0,
+    "current_high": 1.0,
+    "temp_high": 1.0,
+    "temp_low": 0.0,
+    "tcp_normal": 0.7
+  },
+  "root_cause_ranking": [
+    {
+      "cause": "Cable Drag (线缆卡滞)",
+      "score": 2.36
+    },
+    {
+      "cause": "Reducer Wear (减速机磨损)",
+      "score": 2.32
+    },
+    {
+      "cause": "Bearing Damage (轴承损坏)",
+      "score": 2.1
+    },
+    {
+      "cause": "Inertia Parameter Misconfiguration (惯量参数错误)",
+      "score": 1.96
+    },
+    {
+      "cause": "Servo Parameter Mistuning (伺服参数不当)",
+      "score": 1.2599999999999998
+    }
+  ]
+}
