@@ -1,0 +1,10 @@
+{
+  "j6_normal_mean": 9.803448275862069,
+  "j6_normal_std": 5.354500701705621,
+  "j6_anomaly_value": 127.4,
+  "j6_anomaly_ratio": 12.995427365459022,
+  "threshold_3sigma": 25.866950380978935,
+  "threshold_95percentile": 16.88,
+  "detection_result": "J6 anomaly successfully detected by load rate signal",
+  "comparison_with_position_based": "Position-based detection failed to identify J6 anomaly; load rate signal clearly identifies it"
+}
