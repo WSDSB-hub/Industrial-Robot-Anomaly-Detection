@@ -1,0 +1,9 @@
+{
+  "rhi_normal_mean": 1.2512415273330852,
+  "rhi_normal_std": 0.49288717005424576,
+  "rhi_threshold_3sigma": 2.7299030374958226,
+  "rhi_anomaly_value": 21.96218402296497,
+  "anomaly_ratio": 17.5523138764228,
+  "detection_result": "Anomaly successfully detected via multimodal fusion",
+  "note": "RHI computed as the maximum z-score across all joints and all signals"
+}
