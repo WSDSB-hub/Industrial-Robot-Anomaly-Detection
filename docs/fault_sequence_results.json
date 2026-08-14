@@ -1,0 +1,85 @@
+{
+  "total_events": 199,
+  "time_window_min": 30,
+  "causal_rules_discovered": [
+    {
+      "antecedent": "Wire Adhesion",
+      "consequent": "Arc Loss",
+      "count": 11,
+      "avg_delay_min": 4.474485107375347
+    },
+    {
+      "antecedent": "Posture Mismatch",
+      "consequent": "Coordinate Transform Err",
+      "count": 10,
+      "avg_delay_min": 4.577136891202031
+    },
+    {
+      "antecedent": "Welder Comm Interrupt",
+      "consequent": "Arc Loss",
+      "count": 9,
+      "avg_delay_min": 5.572917371542733
+    },
+    {
+      "antecedent": "Motor Current Stall",
+      "consequent": "Motor Overload",
+      "count": 8,
+      "avg_delay_min": 22.054522354746044
+    },
+    {
+      "antecedent": "Soft Limit Error",
+      "consequent": "Coordinate Transform Err",
+      "count": 8,
+      "avg_delay_min": 1.6291366408021446
+    },
+    {
+      "antecedent": "Welder Power Off",
+      "consequent": "Arc Loss",
+      "count": 7,
+      "avg_delay_min": 5.437601139198315
+    },
+    {
+      "antecedent": "Welder Comm Fault",
+      "consequent": "Arc Loss",
+      "count": 6,
+      "avg_delay_min": 8.184791873646342
+    },
+    {
+      "antecedent": "Motor Current Stall",
+      "consequent": "Arc Loss",
+      "count": 5,
+      "avg_delay_min": 20.23638586202669
+    },
+    {
+      "antecedent": "Arc Loss",
+      "consequent": "Motor Overload",
+      "count": 4,
+      "avg_delay_min": 14.167054451080276
+    },
+    {
+      "antecedent": "Motor Overload",
+      "consequent": "Arc Loss",
+      "count": 4,
+      "avg_delay_min": 10.477875423217824
+    },
+    {
+      "antecedent": "Invalid Input Command",
+      "consequent": "System Alarm",
+      "count": 4,
+      "avg_delay_min": 1.8533533208806148
+    },
+    {
+      "antecedent": "Singularity Error",
+      "consequent": "Coordinate Transform Err",
+      "count": 3,
+      "avg_delay_min": 1.0044580172261703
+    },
+    {
+      "antecedent": "Coordinate Transform Err",
+      "consequent": "Posture Mismatch",
+      "count": 3,
+      "avg_delay_min": 12.344440252197879
+    }
+  ],
+  "note": "Event log generated based on real industrial alarm types and maintenance records. Replace with actual teach pendant export for production use."
+}
