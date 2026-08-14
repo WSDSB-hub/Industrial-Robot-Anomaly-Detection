@@ -638,6 +638,7 @@ The state_publisher node currently simulates robot state data. In a production d
 10. **Temporal anomaly detection** with LSTM-Autoencoder, including a three-iteration improvement process that revealed preprocessing errors, evaluation methodology flaws, and overfitting behavior in deep learning for time-series anomaly detection.
 11. **Real-time ROS2 deployment** — implemented a three-node ROS2 package (`robot_health_monitor`) that replicates the offline health scoring logic in a real-time distributed architecture, validated through both multi-terminal and launch-file testing.
 12. **Real signal-based health monitoring** — demonstrated that joint load rate signals detect torque anomalies (J6 overload, 13× normal mean) that position-based methods completely miss.
+13. **Predictive maintenance framework** — designed a two-level early warning system and demonstrated through field validation that sudden faults (cable drag) are fundamentally unpredictable, while identifying the conditions under which predictive maintenance is feasible.
 
 ---
 
