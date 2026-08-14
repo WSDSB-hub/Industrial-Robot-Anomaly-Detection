@@ -365,6 +365,87 @@ This rule operates on real signals that are already available on the teach penda
 
 The complete analysis script is available in `src/signal_health_analysis.py`, and the numerical results are stored in `docs/signal_health_results.json`.
 
+## Predictive Maintenance: Early Warning System for Joint Load Anomalies
+
+### Motivation
+
+The signal-based health monitoring layer detects anomalies after they occur. But the real value of industrial health monitoring lies in **predicting failures before they happen**.
+
+This layer attempts to answer a more ambitious question: can we detect the *escalation* of joint stress before it reaches the critical threshold, giving maintenance personnel a window to act before a full alarm stops production?
+
+### Two-Level Early Warning System
+
+A rule-based early warning framework was designed using two statistical thresholds:
+
+| Warning Level | Threshold Definition | Recommended Action |
+|:---|:---|:---|
+| Level 1 (Caution) | Joint load rate exceeds 2× normal mean for 3 consecutive readings | Increase monitoring frequency, inspect cables and inertia parameters |
+| Level 2 (Critical) | Joint load rate exceeds 3σ threshold | Immediate inspection required, consider preventive shutdown |
+
+The thresholds are derived from the same normal-state statistics used in the health scoring layer, ensuring consistency across the entire system.
+
+### Field Validation: The J6 Overload Case
+
+The early warning system was tested against the J6 overload event recorded during production.
+
+**Normal J6 Load Rate Statistics:**
+
+| Statistic | Value |
+|:---|:---|
+| Normal mean | 9.80% |
+| Normal standard deviation | 5.35% |
+| Level 1 threshold (2× mean) | 19.61% |
+| Level 2 threshold (3σ) | 25.87% |
+
+**The Critical Discovery: The System Did NOT Provide Early Warning**
+
+| Sample | J6 Load Rate | Status |
+|:---|:---|:---|
+| 8 | 11.3% | Normal |
+| 9 | 3.8% | Normal |
+| 10 | 18.9% | Normal |
+| 11 | **127.4%** | **Alarm (SRVO-046)** |
+
+The load rate jumped from 18.9% to 127.4% in a single sampling interval. There was no intermediate escalation phase that the two-level threshold system could detect. The system only triggered the Level 2 alarm at sample 11 — the same moment the robot's own controller already fired the SRVO-046 alarm.
+
+### Why Early Warning Failed: Sudden vs. Gradual Faults
+
+This failure revealed a fundamental distinction in industrial fault prediction that is rarely discussed in academic literature:
+
+| Fault Type | Physical Mechanism | Example | Predictable? |
+|:---|:---|:---|:---|
+| Gradual faults | Slow degradation over many cycles | Reducer wear, bearing degradation, thermal drift | **Yes** — visible as a trend in signal history |
+| Sudden faults | Instantaneous mechanical event | Cable drag, collision, foreign object jamming | **No** — the event IS the first signal |
+
+The J6 overload belonged to the second category. The cable drag occurred suddenly. One moment the cable was clear; the next moment it was caught. The load rate spike was not a symptom of an impending failure — it was the failure itself.
+
+### What This Failure Teaches About Predictive Maintenance
+
+This finding has direct practical implications for industrial robot maintenance:
+
+1. **Not all faults are predictable.** A predictive maintenance system must first classify which fault types in the robot's historical record are gradual and which are sudden.
+2. **Sudden faults require reactive protection, not prediction.** The FANUC controller's SRVO-series servo alarms are exactly this — fast, hardware-level reactive protection that stops the robot within milliseconds of an overload.
+3. **Predictive effort should focus on gradual faults.** For faults like reducer wear or bearing degradation, the signal history genuinely contains precursor patterns, and prediction is feasible.
+4. **Sampling frequency matters.** The 15-minute sampling interval in this study is far too coarse to capture rapid escalation. The robot controller supports CSV data export, which would enable 1-second or even 100-millisecond sampling — at which point rate-of-change features become computable and a much wider class of anomalies becomes detectable.
+
+### Future Improvement: High-Frequency Data-Driven Prediction
+
+If real-time data export becomes available, the early warning system can be significantly enhanced:
+
+- **Rate-of-change features**: Detect rapid load rate increase even if the absolute value is still below threshold.
+- **Current fluctuation analysis**: Motor current often shows subtle irregularity before a mechanical event.
+- **Temperature rise rate**: A faster-than-normal temperature increase is a reliable precursor for friction-related faults.
+
+These features would transform the system from threshold-based detection to true predictive analytics.
+
+### Deliverables
+
+- `src/predictive_maintenance.py` — Two-level early warning system with field validation
+- `docs/predictive_maintenance_results.json` — Numerical results of the J6 validation case
+- `images/predictive_maintenance.png` — Visualization of the load rate timeline and the pre-alarm window
+
+![Predictive Maintenance](images/predictive_maintenance.png)
+
 ## Layer 4: Fault Association Mining and Maintenance Prioritization
 
 ### Fault Association Rules
