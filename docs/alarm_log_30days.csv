@@ -1,0 +1,200 @@
+Day,Time,Event,Type
+1,08:11,System Alarm,Warning
+1,08:31,Motor Current Stall,Warning
+1,08:49,Motor Overload,Fault
+1,13:24,Welder Comm Interrupt,Fault
+1,13:29,Arc Loss,Fault
+1,14:22,Wire Adhesion,Fault
+1,14:24,Arc Loss,Fault
+1,15:47,Welder Comm Interrupt,Fault
+1,15:53,Arc Loss,Fault
+2,08:35,Motor Current Stall,Warning
+2,08:56,Motor Overload,Fault
+2,09:32,Soft Limit Error,Fault
+2,09:33,Coordinate Transform Err,Fault
+2,13:28,Soft Limit Error,Fault
+2,13:29,Coordinate Transform Err,Fault
+2,16:32,Posture Mismatch,Fault
+2,16:36,Coordinate Transform Err,Fault
+2,16:41,Coordinate Transform Err,Fault
+3,08:24,Coordinate Transform Err,Fault
+3,09:45,Arc Loss,Fault
+3,10:26,Motor Current Stall,Warning
+3,10:31,Welder Power Off,Fault
+3,10:32,Arc Loss,Fault
+3,10:48,Motor Overload,Fault
+3,10:55,Arc Loss,Fault
+3,11:12,Wire Adhesion,Fault
+3,11:15,Arc Loss,Fault
+3,11:29,Motor Overload,Fault
+3,15:27,Arc Loss,Fault
+4,12:26,Wire Adhesion,Fault
+4,12:30,Arc Loss,Fault
+4,12:42,Arc Loss,Fault
+4,13:03,Arc Loss,Fault
+4,14:25,Posture Mismatch,Fault
+4,14:29,Coordinate Transform Err,Fault
+4,14:50,Welder Comm Interrupt,Fault
+4,14:55,Arc Loss,Fault
+4,14:56,Motor Current Stall,Warning
+4,15:15,Motor Overload,Fault
+5,08:59,Welder Comm Fault,Fault
+5,09:06,Arc Loss,Fault
+5,10:51,Motor Current Stall,Warning
+5,12:51,Arc Loss,Fault
+5,15:16,Soft Limit Error,Fault
+5,16:01,Welder Comm Fault,Fault
+5,16:03,Motor Overload,Fault
+5,16:10,Arc Loss,Fault
+6,08:19,Welder Comm Interrupt,Fault
+6,08:27,Welder Comm Interrupt,Fault
+6,08:32,Arc Loss,Fault
+6,10:33,Soft Limit Error,Fault
+6,10:42,Welder Comm Interrupt,Fault
+6,10:46,Arc Loss,Fault
+6,12:31,Welder Power Off,Fault
+6,12:32,Arc Loss,Fault
+6,13:29,Posture Mismatch,Fault
+7,08:22,Singularity Error,Fault
+7,08:22,Coordinate Transform Err,Fault
+7,09:40,Posture Mismatch,Fault
+7,09:44,Coordinate Transform Err,Fault
+7,13:19,Singularity Error,Fault
+8,10:19,Posture Mismatch,Fault
+8,15:53,Coordinate Transform Err,Fault
+8,16:19,Coordinate Transform Err,Fault
+9,11:03,Welder Power Off,Fault
+9,11:04,Arc Loss,Fault
+9,11:08,Posture Mismatch,Fault
+9,11:12,Coordinate Transform Err,Fault
+9,13:41,Welder Comm Fault,Fault
+10,08:54,Posture Mismatch,Fault
+10,08:58,Coordinate Transform Err,Fault
+10,10:18,Motor Current Stall,Warning
+10,10:42,Motor Overload,Fault
+11,10:55,Posture Mismatch,Fault
+11,13:50,Arc Loss,Fault
+11,14:43,Wire Adhesion,Fault
+11,14:46,Arc Loss,Fault
+11,15:38,Posture Mismatch,Fault
+12,08:13,Invalid Input Command,Warning
+12,08:15,System Alarm,Warning
+12,09:35,Arc Loss,Fault
+12,13:48,System Alarm,Warning
+12,16:27,Wire Adhesion,Fault
+12,16:35,System Alarm,Warning
+13,08:52,Torch Collision,Fault
+13,13:00,Arc Loss,Fault
+13,13:07,Soft Limit Error,Fault
+13,14:15,Motor Current Stall,Warning
+13,16:25,Singularity Error,Fault
+14,08:19,Welder Comm Interrupt,Fault
+14,08:23,Arc Loss,Fault
+14,08:50,Arc Loss,Fault
+14,11:02,Coordinate Transform Err,Fault
+14,11:22,Motor Current Stall,Warning
+14,11:47,Motor Overload,Fault
+14,12:11,Posture Mismatch,Fault
+14,12:15,Coordinate Transform Err,Fault
+14,12:53,Coordinate Transform Err,Fault
+14,13:12,Posture Mismatch,Fault
+14,15:09,System Alarm,Warning
+14,16:00,Soft Limit Error,Fault
+14,16:02,Coordinate Transform Err,Fault
+15,08:13,Singularity Error,Fault
+15,15:31,Welder Comm Fault,Fault
+15,15:39,Arc Loss,Fault
+15,16:39,Welder Power Off,Fault
+15,16:40,Arc Loss,Fault
+16,08:07,Invalid Input Command,Warning
+16,08:21,Soft Limit Error,Fault
+16,08:22,Coordinate Transform Err,Fault
+16,08:24,Welder Comm Fault,Fault
+16,08:31,Arc Loss,Fault
+16,09:02,Wire Adhesion,Fault
+16,09:05,Arc Loss,Fault
+16,11:12,Wire Adhesion,Fault
+16,11:15,Arc Loss,Fault
+16,14:49,Soft Limit Error,Fault
+17,08:14,Torch Collision,Fault
+17,13:46,Coordinate Transform Err,Fault
+18,08:09,Arc Loss,Fault
+18,08:37,Motor Current Stall,Warning
+18,08:38,Posture Mismatch,Fault
+18,08:50,Welder Power Off,Fault
+18,08:51,Arc Loss,Fault
+18,08:54,Welder Comm Interrupt,Fault
+18,08:58,Motor Overload,Fault
+18,09:00,Arc Loss,Fault
+18,10:52,System Alarm,Warning
+18,14:08,Wire Adhesion,Fault
+18,14:12,Arc Loss,Fault
+18,15:36,Motor Current Stall,Warning
+18,16:02,Motor Overload,Fault
+19,08:05,Motor Overload,Fault
+19,08:49,System Alarm,Warning
+19,11:30,System Alarm,Warning
+19,16:03,Coordinate Transform Err,Fault
+19,16:08,Posture Mismatch,Fault
+19,16:12,Coordinate Transform Err,Fault
+20,08:31,Arc Loss,Fault
+20,11:09,Arc Loss,Fault
+20,11:58,Motor Current Stall,Warning
+20,12:26,Arc Loss,Fault
+20,12:56,Arc Loss,Fault
+20,15:59,Singularity Error,Fault
+20,16:00,Coordinate Transform Err,Fault
+21,16:52,Wire Adhesion,Fault
+21,16:56,Arc Loss,Fault
+22,09:00,Soft Limit Error,Fault
+22,09:01,Coordinate Transform Err,Fault
+22,11:49,Arc Loss,Fault
+22,13:01,Arc Loss,Fault
+22,14:59,Posture Mismatch,Fault
+22,16:09,Torch Collision,Fault
+23,08:23,Arc Loss,Fault
+23,12:44,Coordinate Transform Err,Fault
+23,16:01,System Alarm,Warning
+23,16:43,Coordinate Transform Err,Fault
+23,16:56,Posture Mismatch,Fault
+24,10:31,Posture Mismatch,Fault
+24,10:35,Coordinate Transform Err,Fault
+24,12:06,Welder Comm Fault,Fault
+24,12:15,Arc Loss,Fault
+24,16:00,Arc Loss,Fault
+24,16:33,System Alarm,Warning
+25,11:45,System Alarm,Warning
+25,13:31,Invalid Input Command,Warning
+25,13:32,System Alarm,Warning
+25,14:31,Arc Loss,Fault
+25,15:24,Wire Adhesion,Fault
+25,16:11,System Alarm,Warning
+25,16:32,Welder Comm Fault,Fault
+25,16:41,Arc Loss,Fault
+26,12:59,Motor Current Stall,Warning
+26,15:18,Invalid Input Command,Warning
+26,15:20,System Alarm,Warning
+26,15:46,Soft Limit Error,Fault
+26,15:48,Coordinate Transform Err,Fault
+26,16:58,Welder Comm Fault,Fault
+26,16:59,Torch Collision,Fault
+27,12:58,Wire Adhesion,Fault
+27,13:01,Arc Loss,Fault
+27,13:02,Arc Loss,Fault
+27,15:40,Motor Current Stall,Warning
+27,15:53,Singularity Error,Fault
+27,15:54,Coordinate Transform Err,Fault
+28,09:19,Welder Comm Interrupt,Fault
+28,09:22,Arc Loss,Fault
+28,12:25,System Alarm,Warning
+28,13:35,Soft Limit Error,Fault
+28,13:37,Coordinate Transform Err,Fault
+28,15:45,Arc Loss,Fault
+28,16:20,Arc Loss,Fault
+28,16:32,Arc Loss,Fault
+29,09:38,Invalid Input Command,Warning
+29,09:40,System Alarm,Warning
+29,11:06,Posture Mismatch,Fault
+29,11:10,Coordinate Transform Err,Fault
+30,09:05,Soft Limit Error,Fault
+30,09:06,Coordinate Transform Err,Fault
