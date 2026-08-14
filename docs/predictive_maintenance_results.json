@@ -1,0 +1,14 @@
+{
+  "j6_normal_mean": 9.803448275862069,
+  "j6_normal_std": 5.354500701705621,
+  "warning_threshold_2x_mean": 19.606896551724137,
+  "critical_threshold_3sigma": 25.866950380978935,
+  "alarm_sample_index": 11,
+  "warnings_triggered": [
+    [
+      11,
+      "critical"
+    ]
+  ],
+  "early_warning_lead_time_samples": 0
+}
