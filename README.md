@@ -499,7 +499,7 @@ Each monitoring signal — load rate, current, temperature, TCP pose — capture
 
 The RHI is computed using a z-score fusion approach. For each joint, three signals (load rate, current, temperature) are standardized against their normal-state statistics. The RHI for a given sample is defined as the **maximum z-score across all joints and all signals**:
 
-$$ \text{RHI} = \max_{j \in \{1..6\}, s \in \{\text{load},\text{current},\text{temp}\}} \left| \frac{x_{j,s} - \mu_{j,s}}{\sigma_{j,s}} \right| $$
+![Multimodal Health Index](images/03.png)
 
 This formulation is intentionally conservative: if any single signal in any single joint is abnormal, the RHI reflects that abnormality. No anomaly can hide in one dimension while other dimensions remain normal.
 
